@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy::log::prelude::*;
 use bevy::{
     prelude::*,
@@ -43,6 +45,12 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 const MOVEMENT_SPEED: f32 = 150.;
+const CONTROL_KEYS: &'static [(KeyCode, Vec3)] = &[
+    (KeyCode::D, Vec3::X),
+    (KeyCode::A, Vec3 { x: -1., y: 0., z: 0. }),
+    (KeyCode::W, Vec3::Y),
+    (KeyCode::S, Vec3 { x: 0., y: -1., z: 0. }),
+];
 
 fn keyboard_input_system(
     input: Res<Input<KeyCode>>,
@@ -50,8 +58,10 @@ fn keyboard_input_system(
     mut query: Query<&mut Transform, With<Controlled>>,
 ) {
     for mut transform in &mut query {
-        if input.pressed(KeyCode::W) {
-            transform.translation += MOVEMENT_SPEED * time.delta_seconds() * Vec3::Y;
+        for &(key, axis) in CONTROL_KEYS {
+            if input.pressed(key) {
+                transform.translation += MOVEMENT_SPEED * time.delta_seconds() * axis;
+            }
         }
     }
 }

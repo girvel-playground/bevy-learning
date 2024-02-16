@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use bevy::log::prelude::*;
 use bevy::{
     prelude::*,
@@ -18,7 +16,9 @@ fn main() {
 struct Controlled;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font = asset_server.load("fonts/FiraSans-Bold.ttf");
+    info!("Setup started");
+
+    let font = asset_server.load("fonts/Classic Console Neue.ttf");
     
     // 2d camera
     commands.spawn(Camera2dBundle::default());
@@ -42,6 +42,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         text_anchor: Anchor::Center,
         ..default()
     }, Controlled));
+
+    info!("Setup finished");
 }
 
 const MOVEMENT_SPEED: f32 = 150.;

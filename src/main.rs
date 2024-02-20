@@ -15,33 +15,49 @@ fn main() {
 #[derive(Component)]
 struct Controlled;
 
+struct TextSpriteFactory {
+    style: TextStyle,
+}
+
+impl TextSpriteFactory {
+    fn new(asset_server: &Res<AssetServer>) -> Self {
+        Self {
+            style: TextStyle {
+                font: asset_server.load("fonts/Classic Console Neue.ttf"),
+                font_size: 24.,
+                color: Color::WHITE,
+            }
+        }
+    }
+
+    fn create(&self, string: String) -> Text {
+        Text {
+            sections: vec![TextSection::new(string, self.style.clone())],
+            ..Default::default()
+        }
+    }
+}
+
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     info!("Setup started");
 
-    let font = asset_server.load("fonts/Classic Console Neue.ttf");
-    
     // 2d camera
     commands.spawn(Camera2dBundle::default());
    
-    // player's "@"
-    let only_style = TextStyle {
-        font,
-        font_size: 24.0,
-        color: Color::WHITE,
-    };
+    let sprite_factory = TextSpriteFactory::new(&asset_server);
 
+    // player's "@"
     commands.spawn((Text2dBundle {
-        text: Text {
-            sections: vec![TextSection::new(
-                String::from("@"),
-                only_style,
-            )],
-            ..Default::default()
-        },
+        text: sprite_factory.create(String::from("@")),
         transform: Transform::from_translation(Vec3::ZERO),
-        text_anchor: Anchor::Center,
         ..default()
     }, Controlled));
+
+    commands.spawn(Text2dBundle {
+        text: sprite_factory.create(String::from("#")),
+        transform: Transform::from_translation(Vec3::new(0., 100., 0.)),
+        ..default()
+    });
 
     info!("Setup finished");
 }

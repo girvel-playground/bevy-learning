@@ -1,3 +1,5 @@
+use std::fs;
+
 use bevy::log::prelude::*;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -56,15 +58,30 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert(RigidBody::Dynamic)
         .insert(Velocity::default())
         .insert(Controlled)
-        .insert(Collider::cuboid(16., 16.));
+        .insert(Collider::cuboid(12., 12.))
+        .insert(LockedAxes::ROTATION_LOCKED);
 
-    commands
-        .spawn(Text2dBundle {
-            text: sprite_factory.create(String::from("#")),
-            transform: Transform::from_translation(Vec3::new(0., 100., 0.)),
-            ..default()
-        })
-        .insert(Collider::cuboid(16., 16.));
+    for (x, y, char) in fs::read_to_string("assets/levels/test.txt")
+        .unwrap()
+        .split("\n")
+        .enumerate()
+        .flat_map(|(y, line)| line
+            .chars()
+            .enumerate()
+            .map(move |(x, char)| (x, y, char))
+        ) {
+        if char != '#' { continue }
+
+        commands
+            .spawn(Text2dBundle {
+                text: sprite_factory.create(String::from("#")),
+                transform: Transform::from_translation(
+                    Vec3::new(x as f32 * 24., y as f32 * 24., 0.)
+                ),
+                ..default()
+            })
+            .insert(Collider::cuboid(12., 12.));
+    }
 
     info!("Setup finished");
 }
